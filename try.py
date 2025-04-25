@@ -1,38 +1,52 @@
 import pygame, os
 from Bullet import Bullet
+from Invador import Invador
+
 pygame.init() # initialize pygame
+clock = pygame.time.Clock()
 screen = pygame.display.set_mode( (800, 600) ) # Create a window
 pygame.display.set_caption("Hello World") # set the window title
-# bullet
-BULLET_WIDTH = 50
-BULLET_HEIGHT = 100
-X_BULLET = 400
-Y_BULLET = 550
-BULLET_SPEED = 1
+MAX_FPS = 60
 
+
+#INVADOR
+INVADOR_WIDTH = 100
+INVADOR_HEIGHT = 100
+
+# test component
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 IMAGES_FOLDER = os.path.join(THIS_FOLDER, 'images')
-BULLET_IMAGE = pygame.image.load(os.path.join(IMAGES_FOLDER, "bullet_pic.png"))
-BULLET_IMAGE = pygame.transform.scale(BULLET_IMAGE, (BULLET_WIDTH, BULLET_HEIGHT))
+INVADOR_IMAGE = pygame.image.load(os.path.join(IMAGES_FOLDER, "invador_pic.png"))
+INVADOR_IMAGE = pygame.transform.scale(INVADOR_IMAGE, (INVADOR_WIDTH, INVADOR_HEIGHT))
+
 # Game loop
+invador = ""
 running = True
+count = 0
 while running:
+  clock.tick(MAX_FPS)
+  delta = clock.get_time() / 1000
   # Event handling
+  
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
       running = False
   # Drawing
   keys = pygame.key.get_pressed()
-  if keys[pygame.K_SPACE]:
-    Bullet(screen, X_BULLET, Y_BULLET, BULLET_SPEED, BULLET_IMAGE)
-    
+  
+  if keys[pygame.K_LEFT]:
+    Invador(screen, INVADOR_IMAGE, delta)
+    count += 1
+    print(count)
+    print(Invador.invadors_list)
   
   # Update the display
   screen.fill((0, 0 ,0))
   
-  if Bullet.bullets:
-    Bullet.move_bullets()
-    
+  # if Bullet.bullets:
+  #   ...
+  if Invador.invadors_list:
+    Invador.move_invadors()
   pygame.display.flip()
 
 pygame.quit()  # teardown

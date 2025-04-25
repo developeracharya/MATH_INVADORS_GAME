@@ -33,6 +33,10 @@ BULLET_HEIGHT = 50
 BULLET_SPEED = 200
 BULLET_COUNT = 25
 
+#INVADOR
+INVADOR_WIDTH = 100
+INVADOR_HEIGHT = 100
+
 # path
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 IMAGES_FOLDER = os.path.join(THIS_FOLDER, 'images')
@@ -40,6 +44,9 @@ PLAYER_IMAGE = pygame.image.load(os.path.join(IMAGES_FOLDER, "rocket_pic.png"))
 PLAYER_IMAGE = pygame.transform.scale(PLAYER_IMAGE, (PLAYER_WIDTH, PLAYER_HEIGHT))
 BULLET_IMAGE = pygame.image.load(os.path.join(IMAGES_FOLDER, "bullet_pic.png"))
 BULLET_IMAGE = pygame.transform.scale(BULLET_IMAGE, (BULLET_WIDTH, BULLET_HEIGHT))
+INVADOR_IMAGE = pygame.image.load(os.path.join(IMAGES_FOLDER, "invador_pic.png"))
+INVADOR_IMAGE = pygame.transform.scale(INVADOR_IMAGE, (INVADOR_WIDTH, INVADOR_HEIGHT))
+
 # display
 running = True
 mode_chosen = False
@@ -51,20 +58,20 @@ while running:
     # CLOCK
     clock.tick(MAX_FPS)
     delta = clock.get_time() / 1000
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_LEFT] and X_PLAYER > -50 :
         X_PLAYER -= PLAYER_DISPLACEMENT * delta
-    elif keys[pygame.K_RIGHT]:
+    elif keys[pygame.K_RIGHT] and X_PLAYER < 760:
         X_PLAYER += PLAYER_DISPLACEMENT * delta
     
-    if keys[pygame.K_SPACE]:
+    if keys[pygame.K_SPACE] and not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
         Bullet(screen, X_PLAYER, Y_PLAYER, BULLET_SPEED, BULLET_IMAGE, delta)
-        BULLET_COUNT -= 1
-        if not BULLET_COUNT:
-            print("BULLET FINISH!")
-            break
+        # BULLET_COUNT -= 1
+        # if not BULLET_COUNT:
+        #     print("BULLET FINISH!")
+        #     break
     
     screen.fill((0, 0 ,0))
-    if Bullet.bullets:
+    if Bullet.BULLETS:
         Bullet.move_bullets()
     screen.blit(PLAYER_IMAGE, (X_PLAYER, Y_PLAYER))
     pygame.display.flip()

@@ -1,6 +1,6 @@
 import pygame
 class Bullet:
-    bullets = []
+    BULLETS = []
     def __init__(self, screen, X_BULLET, Y_BULLET, BULLET_SPEED, BULLET_IMAGE, delta):
         self.screen = screen
         self.BULLET_IMAGE = BULLET_IMAGE
@@ -8,7 +8,7 @@ class Bullet:
         self.Y_BULLET = Y_BULLET
         self.BULLET_SPEED = BULLET_SPEED * delta
         self.collision = False
-        __class__.bullets.append(self)
+        __class__.BULLETS.append(self)
     
     def move_bullet(self):
         self.Y_BULLET -= self.BULLET_SPEED
@@ -16,6 +16,6 @@ class Bullet:
     
     @classmethod
     def move_bullets(cls):
-        print("bullets list")
-        for bullet in cls.bullets:
+        print("BULLETS list")
+        for bullet in cls.BULLETS:
             bullet.move_bullet()
