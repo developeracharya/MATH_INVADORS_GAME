@@ -7,11 +7,15 @@ clock = pygame.time.Clock()
 screen = pygame.display.set_mode( (800, 600) ) # Create a window
 pygame.display.set_caption("Hello World") # set the window title
 MAX_FPS = 60
+TIMER_EVENT = pygame.USEREVENT + 1
+
+pygame.time.set_timer(TIMER_EVENT, 3000)
 
 
 #INVADOR
 INVADOR_WIDTH = 100
 INVADOR_HEIGHT = 100
+NUMBER_OF_INVADORS = 5
 
 # test component
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
@@ -31,14 +35,15 @@ while running:
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
       running = False
+    elif event.type == TIMER_EVENT:
+      Invador(screen, INVADOR_IMAGE, delta)
+      count += 1
+      print(count)
   # Drawing
-  keys = pygame.key.get_pressed()
+  # keys = pygame.key.get_pressed()
   
-  if keys[pygame.K_LEFT]:
-    Invador(screen, INVADOR_IMAGE, delta)
-    count += 1
-    print(count)
-    print(Invador.invadors_list)
+  # if keys[pygame.K_LEFT]:
+    
   
   # Update the display
   screen.fill((0, 0 ,0))
