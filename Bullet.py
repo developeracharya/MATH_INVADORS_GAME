@@ -29,7 +29,7 @@ class Bullet():
             if Invador.alive_invadors:
                colloided_invador = bullet.collision_detector(Invador.alive_invadors)
                if bullet.collision:
-                    cls.BULLETS.remove(bullet)
+                    cls.BULLETS = []
                if colloided_invador:
                     bullet.move_bullet()
                     return colloided_invador

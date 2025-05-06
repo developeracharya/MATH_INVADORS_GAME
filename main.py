@@ -1,10 +1,15 @@
 import pygame, os
 from Invador import Invador
 from Bullet import Bullet
+from Button import Button
 import random
 #set screen constants
 WINDOW_WIDTH = 900
 WINDOW_HEIGHT = 700
+
+# BUTTON 
+BUTTON_WIDTH = 200
+BUTTON_HEIGHT = 50
 
 
 # initializing pygame
@@ -80,6 +85,31 @@ def drawText(txt,color,size= 24, position=(10,10)):
 
 #QUESTION INVADOR
 question_invador = ""
+
+start_game = False
+while not start_game:
+  for event in pygame.event.get():
+    if event.type == pygame.QUIT:
+      running = False 
+      break
+    if event.type == pygame.MOUSEBUTTONDOWN:
+      # print(pygame.mouse.get_pos()) 
+      print(Button.button_click(pygame.mouse.get_pos()))
+      if Button.button_click(pygame.mouse.get_pos()) == "start-game-btn":
+        running = True
+        start_game = True
+        break
+      
+      elif Button.button_click(pygame.mouse.get_pos()) == "end-game-btn":
+        running = False
+        print("game ended")
+        start_game = True
+        break
+  screen.fill((0, 0 ,0))
+  Button("start-game-btn",screen, "Start Game", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 - 100), (255, 255, 255), (255, 0, 0))
+  Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2), (255, 0, 0),(255,255, 255))
+  pygame.display.flip()
+
 
 # display
 running = True
