@@ -15,15 +15,14 @@ class Invador:
         self.y_invador = 100
         self.x_velocity = random.choice([-1, 1])* random.choice(self.VELOCITIES) * delta
         self.y_velocity = random.choice(self.VELOCITIES) * delta   
-        self.FONT_INFO = pygame.font.SysFont("Arial", 24)
         __class__.invadors_list.append(self)
         __class__.alive_invadors.append(self)  
         self.mode = mode
         self.value_fun(self.mode)
         print("created")
     
-    def drawText(self, txt,color,position=(10,10)):
-        text_surface = self.FONT_INFO.render(txt, True, color) # True for antialiasing
+    def drawText(self, txt,color,size= 24, position=(10,10)):
+        text_surface = pygame.font.SysFont("Arial", size).render(txt, True, color) # True for antialiasing
         self.screen.blit(text_surface, position)  # Draw the text onto the screen
     
     def value_fun(self, mode):
@@ -57,7 +56,7 @@ class Invador:
             self.x_invador += self.x_velocity
             self.y_invador += self.y_velocity
         self.screen.blit(self.INVADOR_IMAGE, (self.x_invador, self.y_invador))
-        self.drawText(f"{self.value}", (255, 0 ,0), (self.x_invador + 80, self.y_invador))
+        self.drawText(txt=f"{self.value}", color=(255, 0 ,0), position=(self.x_invador + 80, self.y_invador))
     
     @classmethod
     def random_invador(cls):

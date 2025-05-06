@@ -39,6 +39,7 @@ PLAYER_HEIGHT = 200
 X_PLAYER = 400
 Y_PLAYER = 500
 PLAYER_DISPLACEMENT = 3000
+SCORE = 0
 
 # bullet
 BULLET_WIDTH = 50
@@ -62,7 +63,7 @@ INVADOR_IMAGE = pygame.transform.scale(INVADOR_IMAGE, (INVADOR_WIDTH, INVADOR_HE
 
 
 # Define fonts
-FONT_INFO = pygame.font.SysFont("Arial", 24)
+# FONT_INFO = pygame.font.SysFont("Arial", 24)
 FONT_LARGE = pygame.font.SysFont ("Arial", 48)
 
 #TEXT DRAWER
@@ -72,6 +73,10 @@ def drawTextCenter(txt, color):
   text_rect = text_surface.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
   screen.blit(text_surface, text_rect)  # Draw the text onto the screen
 
+def drawText(txt,color,size= 24, position=(10,10)):
+        text_surface = pygame.font.SysFont("Arial", size).render(txt, True, color) # True for antialiasing
+        screen.blit(text_surface, position)  # Draw the text onto the screen
+    
 
 #QUESTION INVADOR
 question_invador = ""
@@ -120,10 +125,16 @@ while running:
     if Bullet.BULLETS:
         invador_colloided = Bullet.move_bullets()
         if invador_colloided == question_invador:
+            SCORE += 1
             Invador.dead_invadors.append(invador_colloided)
             Invador.alive_invadors.remove(invador_colloided)
             question_invador = ""
-
+    if SCORE == 5:
+        screen.fill((0, 0 ,0))
+        drawText(txt=f"Your Score: {SCORE}", color=RED, position=(WINDOW_HEIGHT//2, WINDOW_WIDTH//2 - 50))
+        drawTextCenter("You won the invadors!", (0, 200, 0))
+    else:
+        drawText(txt=f"Your Score: {SCORE}", color="Yellow", position=(WINDOW_HEIGHT//2, WINDOW_WIDTH//2 - 70), size=12)
     screen.blit(PLAYER_IMAGE, (X_PLAYER, Y_PLAYER))
     pygame.display.flip()
     
