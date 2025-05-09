@@ -15,8 +15,6 @@ class Invador:
         self.y_invador = 100
         self.x_velocity = random.choice([-1, 1])* random.choice(self.VELOCITIES) * delta
         self.y_velocity = random.choice(self.VELOCITIES) * delta   
-        __class__.invadors_list.append(self)
-        __class__.alive_invadors.append(self)  
         self.mode = mode
         self.value_fun(self.mode)
         print("created")
@@ -58,6 +56,23 @@ class Invador:
         self.screen.blit(self.INVADOR_IMAGE, (self.x_invador, self.y_invador))
         self.drawText(txt=f"{self.value}", color=(255, 0 ,0), position=(self.x_invador + 80, self.y_invador))
     
+    @classmethod
+    def increase_speed(cls):
+        for invador in cls.alive_invadors:
+            if invador.x_velocity < 0:
+                invador.x_velocity -= 0.1
+            else:
+                invador.x_velocity += 0.1
+            if invador.y_velocity < 0:
+                invador.y_velocity -= 0.1
+            else:
+                invador.y_velocity += 0.1
+
+    @classmethod
+    def value_checker(cls, new_invador):
+        for invador in cls.alive_invadors:
+            if invador.value == new_invador.value: return True
+            
     @classmethod
     def random_invador(cls):
         if cls.alive_invadors:

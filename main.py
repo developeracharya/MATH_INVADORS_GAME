@@ -14,9 +14,17 @@ BUTTON_HEIGHT = 50
 
 # initializing pygame
 pygame.init()
+pygame.mixer.init() 
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("Math Invadors")
+
+#speaker width
+SPEAKER_WIDTH = 30
+SPEAKER_HEIGHT = 30
+SPEAKER_X = 850
+SPEAKER_Y = 5
+SPEAKER_ON = True
 
 # Define colors
 WHITE = (255, 255, 255)
@@ -30,6 +38,13 @@ TIMER_EVENT = pygame.USEREVENT + 1
 
 pygame.time.set_timer(TIMER_EVENT, 1000)
 
+#music 
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+SOUND_FOLDER = os.path.join(THIS_FOLDER, 'sounds')
+BACKGROUND_MUSIC = pygame.mixer.music.load(os.path.join(SOUND_FOLDER, "song21.mp3"))
+LASER_SOUND = pygame.mixer.Sound(os.path.join(SOUND_FOLDER, "laser1.ogg"))
+EXPLOSION_SOUND = pygame.mixer.Sound(os.path.join(SOUND_FOLDER, "explosion2.ogg"))
+
 # Game mode
 ADDITION = False
 SUBTRACTION = False
@@ -41,6 +56,7 @@ MODE = ["addition", "subtraction", "multiplication", "division"]
 # Player
 PLAYER_WIDTH = 200
 PLAYER_HEIGHT = 200
+PLAYER_HEALTH = 5
 X_PLAYER = 400
 Y_PLAYER = 500
 PLAYER_DISPLACEMENT = 3000
@@ -51,6 +67,10 @@ BULLET_WIDTH = 50
 BULLET_HEIGHT = 50
 BULLET_SPEED = 200
 BULLET_COUNT = 25
+WRONG_COLLISION = False
+
+#running 
+running = True
 
 #INVADOR
 INVADOR_WIDTH = 100
@@ -65,7 +85,12 @@ BULLET_IMAGE = pygame.image.load(os.path.join(IMAGES_FOLDER, "bullet_pic.png"))
 BULLET_IMAGE = pygame.transform.scale(BULLET_IMAGE, (BULLET_WIDTH, BULLET_HEIGHT))
 INVADOR_IMAGE = pygame.image.load(os.path.join(IMAGES_FOLDER, "invador_pic.png"))
 INVADOR_IMAGE = pygame.transform.scale(INVADOR_IMAGE, (INVADOR_WIDTH, INVADOR_HEIGHT))
-
+BACKGROUND_IMAGE= pygame.image.load(os.path.join(IMAGES_FOLDER, "back_ground.png"))
+BACKGROUND_IMAGE = pygame.transform.scale(BACKGROUND_IMAGE, (WINDOW_WIDTH, WINDOW_HEIGHT))
+SPEAKER_ON_IMAGE = pygame.image.load(os.path.join(IMAGES_FOLDER, "speaker_on.png"))
+SPEAKER_ON_IMAGE = pygame.transform.scale(SPEAKER_ON_IMAGE, (SPEAKER_WIDTH, SPEAKER_HEIGHT))
+SPEAKER_OFF_IMAGE = pygame.image.load(os.path.join(IMAGES_FOLDER, "speaker_off.png"))
+SPEAKER_OFF_IMAGE = pygame.transform.scale(SPEAKER_OFF_IMAGE, (SPEAKER_WIDTH, SPEAKER_HEIGHT))
 
 # Define fonts
 # FONT_INFO = pygame.font.SysFont("Arial", 24)
@@ -85,42 +110,62 @@ def drawText(txt,color,size= 24, position=(10,10)):
 
 #QUESTION INVADOR
 question_invador = ""
-
+pygame.mixer.music.play(-1)
 start_game = False
 while not start_game:
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      running = False 
-      break
-    if event.type == pygame.MOUSEBUTTONDOWN:
-      # print(pygame.mouse.get_pos()) 
-      print(Button.button_click(pygame.mouse.get_pos()))
-      if Button.button_click(pygame.mouse.get_pos()) == "start-game-btn":
-        running = True
-        start_game = True
-        break
-      
-      elif Button.button_click(pygame.mouse.get_pos()) == "end-game-btn":
-        running = False
-        print("game ended")
-        start_game = True
-        break
-  screen.fill((0, 0 ,0))
-  Button("start-game-btn",screen, "Start Game", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 - 100), (255, 255, 255), (255, 0, 0))
-  Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2), (255, 0, 0),(255,255, 255))
-  pygame.display.flip()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False 
+            break
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # print(pygame.mouse.get_pos()) 
+            # print(pygame.mouse.get_pos(), Button.button_click(pygame.mouse.get_pos()))
+            if Button.button_click(pygame.mouse.get_pos()) == "start-game-btn":
+                running = True
+                start_game = True
+                break
+            
+            elif Button.button_click(pygame.mouse.get_pos()) == "end-game-btn":
+                running = False
+                print("game ended")
+                start_game = True
+                break
+            
+            elif Button.button_click(pygame.mouse.get_pos()) == "speaker":
+                print("this is speaker", SPEAKER_ON)
+                SPEAKER_ON = not SPEAKER_ON
+                if SPEAKER_ON:
+                    pygame.mixer.music.play(-1)
+                else:
+                    pygame.mixer.music.stop()
+                print(SPEAKER_ON)
+    #   screen.fill((0, 0, 0))
 
+    screen.blit(BACKGROUND_IMAGE, (0, 0))
+    Button("speaker",screen, "", SPEAKER_WIDTH, SPEAKER_HEIGHT, (SPEAKER_X, SPEAKER_Y), (0, 0, 0), (0, 0, 0), speaker=True, on=SPEAKER_ON, speaker_pic = (SPEAKER_ON_IMAGE, SPEAKER_OFF_IMAGE))
+    Button("start-game-btn",screen, "Start Game", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 - 100), (255, 255, 255), (255, 0, 0))
+    Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2), (255, 0, 0),(255,255, 255))
+    pygame.display.flip()
+    
 
 # display
-running = True
-mode_chosen = False
+
 while running:
     keys = pygame.key.get_pressed()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == TIMER_EVENT and len(Invador.alive_invadors) <= 5:
-            Invador(screen, INVADOR_IMAGE, delta, random.choice(MODE))
+            invador_created = True
+            while invador_created:
+                new_invador = Invador(screen, INVADOR_IMAGE, delta, random.choice(MODE))
+                if Invador.value_checker(new_invador) and len(Invador.alive_invadors) > 1:
+                    continue
+                else: 
+                    Invador.invadors_list.append(new_invador)
+                    Invador.alive_invadors.append(new_invador)  
+                    break
+                    
     
     if not question_invador and Invador.alive_invadors:
         question_invador = Invador.random_invador()
@@ -136,15 +181,40 @@ while running:
         elif keys[pygame.K_RIGHT] and X_PLAYER < 760:
             X_PLAYER += PLAYER_DISPLACEMENT * delta
     
-    if keys[pygame.K_SPACE] and not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
-        Bullet(screen, X_PLAYER, Y_PLAYER, BULLET_SPEED, BULLET_IMAGE, delta)
+        if keys[pygame.K_SPACE] and not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
+            Bullet(screen, X_PLAYER, Y_PLAYER, BULLET_SPEED, BULLET_IMAGE, delta)
+            if SPEAKER_ON:
+                pygame.mixer.Sound.play(LASER_SOUND)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if Button.button_click(pygame.mouse.get_pos()) == "start-game-btn":
+                running = True
+                PLAYER_HEALTH = 5
+                SCORE = 0
+                Invador.alive_invadors = []
+                Invador.dead_invadors = []
+                Invador.invadors_list = []
+                question_invador = None
+            elif Button.button_click(pygame.mouse.get_pos()) == "end-game-btn":
+                running = False
+                print("game ended")
+                start_game = True
+                break
+            
+            elif Button.button_click(pygame.mouse.get_pos()) == "speaker":
+                print("this is speaker", SPEAKER_ON)
+                SPEAKER_ON = not SPEAKER_ON
+                if SPEAKER_ON:
+                    pygame.mixer.music.play(-1)
+                else:
+                    pygame.mixer.music.stop()
+                print(SPEAKER_ON)
         # BULLET_COUNT -= 1
         # if not BULLET_COUNT:
         #     print("BULLET FINISH!")
         #     break
     
-    screen.fill((0, 0 ,0))
-    
+    screen.blit(BACKGROUND_IMAGE, (0, 0))
+    Button("speaker",screen, "", SPEAKER_WIDTH, SPEAKER_HEIGHT, (SPEAKER_X, SPEAKER_Y), (0, 0, 0), (0, 0, 0), speaker=True, on=SPEAKER_ON, speaker_pic = (SPEAKER_ON_IMAGE, SPEAKER_OFF_IMAGE))
     if question_invador:
         drawTextCenter(display_text, WHITE)
         
@@ -156,15 +226,31 @@ while running:
         invador_colloided = Bullet.move_bullets()
         if invador_colloided == question_invador:
             SCORE += 1
+            if SPEAKER_ON:
+                pygame.mixer.Sound.play(EXPLOSION_SOUND)
             Invador.dead_invadors.append(invador_colloided)
             Invador.alive_invadors.remove(invador_colloided)
+            Invador.increase_speed()
             question_invador = ""
-    if SCORE == 5:
-        screen.fill((0, 0 ,0))
+        elif invador_colloided:
+            PLAYER_HEALTH -= 1
+        
+    if not PLAYER_HEALTH:
+        screen.blit(BACKGROUND_IMAGE, (0, 0))
+        drawText(txt=f"Your Score: {SCORE}", color=RED, position=(WINDOW_HEIGHT//2, WINDOW_WIDTH//2 - 50))
+        drawTextCenter("Invadors Killed You!", (0, 200, 0))
+        Button("start-game-btn",screen, "Start Game", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 250, WINDOW_HEIGHT//2 + 100), (255, 255, 255), (255, 0, 0))
+        Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 , WINDOW_HEIGHT//2 + 100), (255, 0, 0),(255,255, 255))
+    
+    if SCORE == 25:
+        screen.blit(BACKGROUND_IMAGE, (0, 0))
         drawText(txt=f"Your Score: {SCORE}", color=RED, position=(WINDOW_HEIGHT//2, WINDOW_WIDTH//2 - 50))
         drawTextCenter("You won the invadors!", (0, 200, 0))
+        Button("start-game-btn",screen, "Start Game", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 250, WINDOW_HEIGHT//2 + 100), (255, 255, 255), (255, 0, 0))
+        Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 100), (255, 0, 0),(255,255, 255))
     else:
-        drawText(txt=f"Your Score: {SCORE}", color="Yellow", position=(WINDOW_HEIGHT//2, WINDOW_WIDTH//2 - 70), size=12)
+        drawText(txt=f"Your Score: {SCORE}", color="Yellow", position=(700, 50), size=12)
+        drawText(txt=f"Your Health: {PLAYER_HEALTH}", color="Yellow", position=(800, 50), size=12)
     screen.blit(PLAYER_IMAGE, (X_PLAYER, Y_PLAYER))
     pygame.display.flip()
     
