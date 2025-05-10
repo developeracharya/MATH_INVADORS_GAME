@@ -42,6 +42,3 @@ math-invaders/
 ```bash
 pip3 install pygame
 python main.py
-
-```bash
-
