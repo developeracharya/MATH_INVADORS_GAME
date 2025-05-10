@@ -16,14 +16,23 @@ In **Math Invaders**, players control a spaceship at the bottom of the screen an
 
 ## 📁 Project Structure
 math-invaders/
+<br/>
 │
+<br/>
 ├── main.py # Main game loop
+<br/>
 ├── Bullet.py # Bullet mechanics and logic
+<br/>
 ├── Invador.py # Invader generation and behavior
+<br/>
 ├── Button.py # Start and UI button logic
+<br/>
 ├── images/ # Game assets (spaceship, invaders, background)
+<br/>
 ├── sounds/ # Game sounds
+<br/>
 └── README.md # Project description and instructions
+<br/>
 
 ## ▶️ How to Run
 
