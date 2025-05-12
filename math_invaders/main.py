@@ -2,6 +2,7 @@ import pygame, os
 from Invador import Invador
 from Bullet import Bullet
 from Button import Button
+import json
 import random
 #set screen constants
 WINDOW_WIDTH = 900
@@ -108,6 +109,20 @@ def drawText(txt,color,size= 24, position=(10,10)):
         screen.blit(text_surface, position)  # Draw the text onto the screen
     
 
+DATA_FILE = os.path.join(THIS_FOLDER, 'data.json')
+HIGH_SCORE = 0
+
+if os.path.exists(DATA_FILE):
+    with open(DATA_FILE, 'r') as file:
+        try:
+            data = json.load(file)
+            HIGH_SCORE = data.get("high_score", 0)
+        except json.JSONDecodeError:
+            HIGH_SCORE = 0
+else:
+    with open(DATA_FILE, 'w') as file:
+        json.dump({"high_score": 0}, file)
+        
 #QUESTION INVADOR
 question_invador = ""
 pygame.mixer.music.play(-1)
@@ -236,6 +251,11 @@ while running:
             PLAYER_HEALTH -= 1
         
     if not PLAYER_HEALTH:
+        if SCORE > HIGH_SCORE:
+            HIGH_SCORE = SCORE
+            with open(DATA_FILE, 'w') as file:
+                json.dump({"high_score": HIGH_SCORE}, file)
+                
         screen.blit(BACKGROUND_IMAGE, (0, 0))
         drawText(txt=f"Your Score: {SCORE}", color=RED, position=(WINDOW_HEIGHT//2, WINDOW_WIDTH//2 - 50))
         drawTextCenter("Invadors Killed You!", (0, 200, 0))
@@ -243,6 +263,10 @@ while running:
         Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 , WINDOW_HEIGHT//2 + 100), (255, 0, 0),(255,255, 255))
     
     if SCORE == 25:
+        if SCORE > HIGH_SCORE:
+            HIGH_SCORE = SCORE
+            with open(DATA_FILE, 'w') as file:
+                json.dump({"high_score": HIGH_SCORE}, file)
         screen.blit(BACKGROUND_IMAGE, (0, 0))
         drawText(txt=f"Your Score: {SCORE}", color=RED, position=(WINDOW_HEIGHT//2, WINDOW_WIDTH//2 - 50))
         drawTextCenter("You won the invadors!", (0, 200, 0))
@@ -251,6 +275,7 @@ while running:
     else:
         drawText(txt=f"Your Score: {SCORE}", color="Yellow", position=(700, 50), size=12)
         drawText(txt=f"Your Health: {PLAYER_HEALTH}", color="Yellow", position=(800, 50), size=12)
+        drawText(txt=f"High Score: {HIGH_SCORE}", color="Yellow", position=(700, 70), size=12)
     screen.blit(PLAYER_IMAGE, (X_PLAYER, Y_PLAYER))
     pygame.display.flip()
     
