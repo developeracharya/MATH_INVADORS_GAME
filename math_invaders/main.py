@@ -123,6 +123,23 @@ else:
     with open(DATA_FILE, 'w') as file:
         json.dump({"high_score": 0}, file)
         
+DIFFICULTY = "normal"  # Default difficulty
+
+DIFFICULTY_SETTINGS = {
+    "easy": {
+        "invador_speed_multiplier": 0.8,
+        "spawn_interval": 1500,  # slower
+    },
+    "normal": {
+        "invador_speed_multiplier": 1.0,
+        "spawn_interval": 1000,
+    },
+    "hard": {
+        "invador_speed_multiplier": 1.5,
+        "spawn_interval": 600,  # faster
+    }
+}
+
 #QUESTION INVADOR
 question_invador = ""
 pygame.mixer.music.play(-1)
@@ -154,9 +171,27 @@ while not start_game:
                 else:
                     pygame.mixer.music.stop()
                 print(SPEAKER_ON)
+                
+            elif Button.button_click(pygame.mouse.get_pos()) == "easy":
+                DIFFICULTY = "easy"
+                pygame.time.set_timer(TIMER_EVENT, DIFFICULTY_SETTINGS["easy"]["spawn_interval"])
+
+            elif Button.button_click(pygame.mouse.get_pos()) == "normal":
+                DIFFICULTY = "normal"
+                pygame.time.set_timer(TIMER_EVENT, DIFFICULTY_SETTINGS["normal"]["spawn_interval"])
+
+            elif Button.button_click(pygame.mouse.get_pos()) == "hard":
+                DIFFICULTY = "hard"
+                pygame.time.set_timer(TIMER_EVENT, DIFFICULTY_SETTINGS["hard"]["spawn_interval"])
+                
+
     #   screen.fill((0, 0, 0))
 
     screen.blit(BACKGROUND_IMAGE, (0, 0))
+    drawText(txt=f"Difficulty: {DIFFICULTY.title()}", color="Yellow", position=(700, 90), size=12)
+    Button("easy", screen, "Easy", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 320, WINDOW_HEIGHT//2 + 100), (0, 255, 0), (0, 0, 0))
+    Button("normal", screen, "Normal", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 + 100), (255, 255, 0), (0, 0, 0))
+    Button("hard", screen, "Hard", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 + 120, WINDOW_HEIGHT//2 + 100), (255, 0, 0), (255, 255, 255))
     Button("speaker",screen, "", SPEAKER_WIDTH, SPEAKER_HEIGHT, (SPEAKER_X, SPEAKER_Y), (0, 0, 0), (0, 0, 0), speaker=True, on=SPEAKER_ON, speaker_pic = (SPEAKER_ON_IMAGE, SPEAKER_OFF_IMAGE))
     Button("start-game-btn",screen, "Start Game", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 - 100), (255, 255, 255), (255, 0, 0))
     Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2), (255, 0, 0),(255,255, 255))
@@ -173,7 +208,12 @@ while running:
         elif event.type == TIMER_EVENT and len(Invador.alive_invadors) <= 5:
             invador_created = True
             while invador_created:
-                new_invador = Invador(screen, INVADOR_IMAGE, delta, random.choice(MODE))
+                new_invador = Invador(
+                                    screen,
+                                    INVADOR_IMAGE,
+                                    delta * DIFFICULTY_SETTINGS[DIFFICULTY]["invador_speed_multiplier"],
+                                    random.choice(MODE)
+                                )
                 if Invador.value_checker(new_invador) and len(Invador.alive_invadors) > 1:
                     continue
                 else: 
@@ -223,6 +263,19 @@ while running:
                 else:
                     pygame.mixer.music.stop()
                 print(SPEAKER_ON)
+            
+            elif Button.button_click(pygame.mouse.get_pos()) == "easy":
+                DIFFICULTY = "easy"
+                pygame.time.set_timer(TIMER_EVENT, DIFFICULTY_SETTINGS["easy"]["spawn_interval"])
+
+            elif Button.button_click(pygame.mouse.get_pos()) == "normal":
+                DIFFICULTY = "normal"
+                pygame.time.set_timer(TIMER_EVENT, DIFFICULTY_SETTINGS["normal"]["spawn_interval"])
+
+            elif Button.button_click(pygame.mouse.get_pos()) == "hard":
+                DIFFICULTY = "hard"
+                pygame.time.set_timer(TIMER_EVENT, DIFFICULTY_SETTINGS["hard"]["spawn_interval"])
+                
         # BULLET_COUNT -= 1
         # if not BULLET_COUNT:
         #     print("BULLET FINISH!")
@@ -243,8 +296,12 @@ while running:
             SCORE += 1
             if SPEAKER_ON:
                 pygame.mixer.Sound.play(EXPLOSION_SOUND)
-            Invador.dead_invadors.append(invador_colloided)
-            Invador.alive_invadors.remove(invador_colloided)
+            try:
+                Invador.dead_invadors.append(invador_colloided)
+                Invador.alive_invadors.remove(invador_colloided)
+            except ValueError:
+                pass
+                
             Invador.increase_speed()
             question_invador = ""
         elif invador_colloided:
@@ -259,9 +316,13 @@ while running:
         screen.blit(BACKGROUND_IMAGE, (0, 0))
         drawText(txt=f"Your Score: {SCORE}", color=RED, position=(WINDOW_HEIGHT//2, WINDOW_WIDTH//2 - 50))
         drawTextCenter("Invadors Killed You!", (0, 200, 0))
+        drawText(txt=f"Difficulty: {DIFFICULTY.title()}", color="Yellow", position=(700, 90), size=12)
         Button("start-game-btn",screen, "Start Game", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 250, WINDOW_HEIGHT//2 + 100), (255, 255, 255), (255, 0, 0))
-        Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 , WINDOW_HEIGHT//2 + 100), (255, 0, 0),(255,255, 255))
-    
+        Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 100), (255, 0, 0),(255,255, 255))
+        Button("easy", screen, "Easy", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 320, WINDOW_HEIGHT//2 - 100), (0, 255, 0), (0, 0, 0))
+        Button("normal", screen, "Normal", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 - 100), (255, 255, 0), (0, 0, 0))
+        Button("hard", screen, "Hard", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 + 120, WINDOW_HEIGHT//2 - 100), (255, 0, 0), (255, 255, 255))
+        
     if SCORE == 25:
         if SCORE > HIGH_SCORE:
             HIGH_SCORE = SCORE
@@ -270,9 +331,16 @@ while running:
         screen.blit(BACKGROUND_IMAGE, (0, 0))
         drawText(txt=f"Your Score: {SCORE}", color=RED, position=(WINDOW_HEIGHT//2, WINDOW_WIDTH//2 - 50))
         drawTextCenter("You won the invadors!", (0, 200, 0))
+        drawText(txt=f"High Score: {HIGH_SCORE}", color="Yellow", position=(700, 70), size=12)
+        drawText(txt=f"Difficulty: {DIFFICULTY.title()}", color="Yellow", position=(700, 90), size=12)
         Button("start-game-btn",screen, "Start Game", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 250, WINDOW_HEIGHT//2 + 100), (255, 255, 255), (255, 0, 0))
         Button("end-game-btn",screen, "Quit", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2, WINDOW_HEIGHT//2 + 100), (255, 0, 0),(255,255, 255))
+        Button("easy", screen, "Easy", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 320, WINDOW_HEIGHT//2 - 100), (0, 255, 0), (0, 0, 0))
+        Button("normal", screen, "Normal", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 - 100, WINDOW_HEIGHT//2 - 100), (255, 255, 0), (0, 0, 0))
+        Button("hard", screen, "Hard", BUTTON_WIDTH, BUTTON_HEIGHT, (WINDOW_WIDTH//2 + 120, WINDOW_HEIGHT//2 - 100), (255, 0, 0), (255, 255, 255))
+   
     else:
+        drawText(txt=f"Difficulty: {DIFFICULTY.title()}", color="Yellow", position=(700, 90), size=12)
         drawText(txt=f"Your Score: {SCORE}", color="Yellow", position=(700, 50), size=12)
         drawText(txt=f"Your Health: {PLAYER_HEALTH}", color="Yellow", position=(800, 50), size=12)
         drawText(txt=f"High Score: {HIGH_SCORE}", color="Yellow", position=(700, 70), size=12)
